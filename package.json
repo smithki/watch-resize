@@ -1,0 +1,39 @@
+{
+  "name": "watch-resize",
+  "version": "1.0.0",
+  "description": "Watch any DOM element for size changes using Observables.",
+  "author": "Ian K Smith <smithki707@gmail.com>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/smithki/.git"
+  },
+  "files": [
+    "dist/**/*"
+  ],
+  "main": "dist/index.js",
+  "typings": "dist/index.d.ts",
+  "unpkg": "dist/index.umd.js",
+  "scripts": {
+    "dev": "yarn clean && yarn compile:watch",
+    "build": "yarn clean && yarn compile",
+    "compile": "microbundle build src/index.ts --name WatchResize",
+    "compile:watch": "microbundle watch src/index.ts --name WatchResize",
+    "clean": "rimraf dist && rimraf coverage",
+    "clean:cache": "rimraf .rts2_cache_*",
+    "release_patch": "npm version patch && npm publish",
+    "release_minor": "npm version minor && npm publish",
+    "release_major": "npm version major && npm publish"
+  },
+  "devDependencies": {
+    "@ikscodes/tslint-config": "^5.3.1",
+    "microbundle": "^0.7.0",
+    "prettier": "^1.14.0",
+    "rimraf": "^2.6.1",
+    "tslint": "^5.11.0",
+    "typescript": "^3.0.3"
+  },
+  "dependencies": {
+    "rxjs": "^6.3.3"
+  }
+}
