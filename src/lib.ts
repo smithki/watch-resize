@@ -5,6 +5,23 @@ import { throttleTime } from 'rxjs/operators';
 
 // --- Business logic ------------------------------------------------------- //
 
+function isElement(obj: any) {
+  try {
+    // Using W3 DOM2 (works for FF, Opera and Chrome)
+    return obj instanceof HTMLElement;
+  } catch (e) {
+    // Browsers not supporting W3 DOM2 don't have HTMLElement and
+    // an exception is thrown and we end up here. Testing some
+    // properties that all elements have (works on IE7)
+    return (
+      typeof obj === 'object' &&
+      obj.nodeType === 1 &&
+      typeof obj.style === 'object' &&
+      typeof obj.ownerDocument === 'object'
+    );
+  }
+}
+
 /**
  * Returns a Promise that resolves to a RxJS Observable. The Observable fires
  * changes in size of the given DOM element are detected.
@@ -15,7 +32,11 @@ export function watchResize<T extends HTMLElement>(
   element: T,
 ): Promise<Observable<Event>> {
   return new Promise((resolve, reject) => {
-    if (!element) reject('The given `HTMLElement` must be defined.');
+    // Assert that `element` is defined and is a valid DOM node.
+    if (!element) reject('The given element must be defined.');
+    if (!isElement(element)) {
+      reject('The given element is not a valid DOM node.');
+    }
 
     // Ensure we are relatively positioned so that the nested browsing context
     // is correctly sized and positioned.
@@ -44,9 +65,7 @@ export function watchResize<T extends HTMLElement>(
           ),
         );
       } else {
-        reject(
-          'Could not build a nested browsing context to watch for DOM element size changes.',
-        );
+        reject('Failed to build a nested browsing context.');
       }
     };
 
