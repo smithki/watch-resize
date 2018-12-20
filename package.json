@@ -21,9 +21,9 @@
     "compile:watch": "microbundle watch src/index.ts --name WatchResize",
     "clean": "rimraf dist && rimraf coverage",
     "clean:cache": "rimraf .rts2_cache_*",
-    "release_patch": "npm version patch && npm publish",
-    "release_minor": "npm version minor && npm publish",
-    "release_major": "npm version major && npm publish"
+    "release_patch": "npm run build && npm version patch && npm publish",
+    "release_minor": "npm run build && npm version minor && npm publish",
+    "release_major": "npm run build && npm version major && npm publish"
   },
   "devDependencies": {
     "@ikscodes/tslint-config": "^5.3.1",
