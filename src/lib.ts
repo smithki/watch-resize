@@ -1,10 +1,24 @@
 // --- Imports -------------------------------------------------------------- //
 
-import { animationFrameScheduler, fromEvent, Observable } from 'rxjs';
-import { throttleTime } from 'rxjs/operators';
+import { Observable, Subscriber } from 'rxjs';
+
+// --- Types ---------------------------------------------------------------- //
+
+/** Payload received by subscribers to their `next` handler. */
+export interface WatchResizePayload<T extends HTMLElement> {
+  element: T;
+  event: UIEvent;
+  prevBoundingClientRect: ClientRect | DOMRect;
+}
+
+/** Observable created by `watchResize`. */
+export type WatchResizeObservable<T extends HTMLElement> = Observable<
+  WatchResizePayload<T>
+>;
 
 // --- Business logic ------------------------------------------------------- //
 
+/** Checks if the given object is a valid `HTMLElement`. */
 function isElement(obj: any) {
   try {
     // Using W3 DOM2 (works for FF, Opera and Chrome)
@@ -23,19 +37,19 @@ function isElement(obj: any) {
 }
 
 /**
- * Returns a Promise that resolves to a RxJS Observable. The Observable fires
- * changes in size of the given DOM element are detected.
+ * Returns a Promise that resolves to a RxJS Observable. The Observable emits
+ * when the given DOM element's width or height changes.
  *
- * @param element HTMLElement to watch for size changes.
+ * @param element - HTMLElement to observe.
  */
 export function watchResize<T extends HTMLElement>(
   element: T,
-): Promise<Observable<Event>> {
+): Promise<WatchResizeObservable<T>> {
   return new Promise((resolve, reject) => {
     // Assert that `element` is defined and is a valid DOM node.
-    if (!element) reject('The given element must be defined.');
+    if (!element) reject('[watch-resize] The given element must be defined.');
     if (!isElement(element)) {
-      reject('The given element is not a valid DOM node.');
+      reject('[watch-resize] The given element is not a valid DOM node.');
     }
 
     // Ensure we are relatively positioned so that the nested browsing context
@@ -53,21 +67,38 @@ export function watchResize<T extends HTMLElement>(
     obj.type = 'text/html';
     obj.data = 'about:blank';
 
+    // Store some data that will change with the observable
+    const subscribers: Subscriber<WatchResizePayload<T>>[] = [];
+    let prevBoundingClientRect:
+      | ClientRect
+      | DOMRect = element.getBoundingClientRect();
+
+    // Create the Observable that will emit each time the nested browsing
+    // context is resized.
+    const observable = new Observable<WatchResizePayload<T>>(s => {
+      subscribers.push(s);
+    });
+
     // When the <object> loads, resolve the Observable.
-    obj.onload = () => {
+    obj.addEventListener('load', () => {
       if (obj.contentDocument && obj.contentDocument.defaultView) {
         const viewContext = obj.contentDocument.defaultView;
-        // We create the Observable from the `resize` event attached to the
-        // nested browsing context.
-        resolve(
-          fromEvent(viewContext, 'resize').pipe(
-            throttleTime(0, animationFrameScheduler),
-          ),
-        );
+
+        // Handle the resize event -- emit to the saved subscribers!
+        viewContext.addEventListener('resize', event => {
+          subscribers.forEach((s, i) => {
+            if (s.closed) subscribers.splice(i, 1);
+            const payload = { element, event, prevBoundingClientRect };
+            s.next(payload);
+            prevBoundingClientRect = element.getBoundingClientRect();
+          });
+        });
+
+        resolve(observable);
       } else {
-        reject('Failed to build a nested browsing context.');
+        reject('[watch-resize] Failed to build a nested browsing context.');
       }
-    };
+    });
 
     // Append the <object> to the target element.
     element.appendChild(obj);
