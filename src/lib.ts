@@ -4,7 +4,7 @@ import { Observable, Subscriber } from 'rxjs';
 
 // --- Types ---------------------------------------------------------------- //
 
-/** Payload received by subscribers to their `next` handler. */
+/** Payload received by `watchResize` subscribers to their `next` handler. */
 export interface WatchResizePayload<T extends HTMLElement> {
   element: T;
   event: UIEvent;
@@ -37,7 +37,7 @@ function isElement(obj: any) {
 }
 
 /**
- * Returns a Promise that resolves to a RxJS Observable. The Observable emits
+ * Returns a Promise that resolves to a RxJS Observable. The Observable fires
  * when the given DOM element's width or height changes.
  *
  * @param element - HTMLElement to observe.
@@ -47,7 +47,9 @@ export function watchResize<T extends HTMLElement>(
 ): Promise<WatchResizeObservable<T>> {
   return new Promise((resolve, reject) => {
     // Assert that `element` is defined and is a valid DOM node.
-    if (!element) reject('[watch-resize] The given element must be defined.');
+    if (typeof element === 'undefined') {
+      reject('[watch-resize] The given element must be defined.');
+    }
     if (!isElement(element)) {
       reject('[watch-resize] The given element is not a valid DOM node.');
     }
@@ -67,7 +69,7 @@ export function watchResize<T extends HTMLElement>(
     obj.type = 'text/html';
     obj.data = 'about:blank';
 
-    // Store some data that will change with the observable
+    // Store some data that will change with the observable.
     const subscribers: Subscriber<WatchResizePayload<T>>[] = [];
     let prevBoundingClientRect:
       | ClientRect
