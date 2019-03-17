@@ -8,7 +8,7 @@ Readme coming soon...
 
 ## 💁🏼‍♂️ Introduction
 
-
+A cross-compatible [ResizeObserver](https://developer.mozilla.org/en-US/docs/Web/API/ResizeObserver) alternative that uses [RxJS](https://github.com/ReactiveX/rxjs) observables. You can watch any element for size changes based on its bounding box.
 
 ## 🔗 Installation
 
@@ -26,4 +26,24 @@ npm install vue-adaptable-div
 
 ## 🛠️ Usage
 
-Coming soon...
+```ts
+import { watchResize } from 'watch-resize';
+
+async function main() {
+  const target = document.getElementById('my-element');
+  const resize$ = await watchResize(target);
+  resize$.subscribe(({ element, event, prevBoundingClientRect }) => {
+    // Do stuff here for each "resize"
+  });
+}
+```
+
+An object implementing `WatchResizePayload` is passed to subscribe handler:
+
+```ts
+export interface WatchResizePayload<T extends HTMLElement> {
+  element: T;
+  event: UIEvent;
+  prevBoundingClientRect: ClientRect | DOMRect; // The previous result of "element.getBoundingClientRect()".
+}
+```
