@@ -1,4 +1,3 @@
-Readme coming soon...
 # 👀 `watchResize`
 
 [![code style: airbnb](https://img.shields.io/badge/code%20style-airbnb-blue.svg?style=flat)](https://github.com/airbnb/javascript)
