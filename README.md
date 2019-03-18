@@ -14,13 +14,13 @@ A cross-compatible [ResizeObserver](https://developer.mozilla.org/en-US/docs/Web
 Install via `yarn` (recommended):
 
 ```sh
-yarn add vue-adaptable-div
+yarn add watch-resize
 ```
 
 Install via `npm`:
 
 ```sh
-npm install vue-adaptable-div
+npm install watch-resize
 ```
 
 ## 🛠️ Usage
