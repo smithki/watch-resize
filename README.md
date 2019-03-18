@@ -28,13 +28,13 @@ npm install watch-resize
 ```ts
 import { watchResize } from 'watch-resize';
 
-async function main() {
-  const target = document.getElementById('my-element');
-  const resize$ = await watchResize(target);
+const target = document.getElementById('my-element');
+
+watchResize(target).then(resize$ => {
   resize$.subscribe(({ element, event, prevBoundingClientRect }) => {
     // Do stuff here for each "resize"
   });
-}
+});
 ```
 
 An object implementing `WatchResizePayload` is passed to subscribe handler:
