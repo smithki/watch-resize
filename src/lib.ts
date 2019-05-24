@@ -53,7 +53,7 @@ export function watchResize<T extends HTMLElement>(
     if (!isElement(element)) {
       reject('[watch-resize] The given element is not a valid DOM node.');
     }
-    if (element.parentNode) {
+    if (!element.parentNode) {
       reject(
         '[watch-resize] The given element is not yet attached to the DOM.',
       );
