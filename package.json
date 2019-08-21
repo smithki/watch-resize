@@ -24,6 +24,7 @@
     "clean": "npm-run-all -s clean:*",
     "clean:dist": "rimraf dist",
     "clean:cache": "rimraf .rts2_cache_*",
+    "lint": "tslint --fix -p .",
     "test" : "echo \"No tests yet :'(\""
   },
   "devDependencies": {
