@@ -17,14 +17,14 @@
   "scripts": {
     "dev": "npm-run-all -s clean:dist -p compile_watch:*",
     "build": "npm-run-all -s clean:dist -p compile:*",
-    "compile:cjs": "microbundle build src/index.cjs.ts --format cjs",
-    "compile:umd": "microbundle build src/index.umd.ts --format umd --name watchResize",
+    "compile:cjs": "microbundle build src/index.cjs.ts --format cjs --external rxjs",
+    "compile:umd": "microbundle build src/index.umd.ts --format umd --name watchResize --external rxjs",
     "compile_watch:cjs": "microbundle watch src/index.cjs.ts --format cjs",
     "compile_watch:umd": "microbundle watch src/index.umd.ts --format umd --name watchResize",
     "clean": "npm-run-all -s clean:*",
     "clean:dist": "rimraf dist",
     "clean:cache": "rimraf .rts2_cache_*",
-    "prepublishOnly": "npm run build"
+    "test" : "echo \"No tests yet :'(\""
   },
   "devDependencies": {
     "@ikscodes/tslint-config": "^5.3.1",
@@ -35,7 +35,7 @@
     "tslint": "^5.11.0",
     "typescript": "^3.0.3"
   },
-  "dependencies": {
-    "rxjs": "^6.4.0"
+  "peerDependencies": {
+    "rxjs": "^6.5.2"
   }
 }
