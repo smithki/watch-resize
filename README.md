@@ -30,10 +30,14 @@ import { watchResize } from 'watch-resize';
 
 const target = document.getElementById('my-element');
 
-watchResize(target).then(resize$ => {
+watchResize(target).then(([resize$, destroyResize$]) => {
   resize$.subscribe(({ element, event, prevBoundingClientRect }) => {
     // Do stuff here for each "resize"
   });
+
+  // Unsubscribe all subscribers, destroy the observable, and remove the
+  // nested browsing context that was created to generate events.
+  destroyResize$();
 });
 ```
 
