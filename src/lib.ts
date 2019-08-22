@@ -16,6 +16,12 @@ export type WatchResizeObservable<T extends HTMLElement> = Observable<
   WatchResizePayload<T>
 >;
 
+/**
+ * A synchronous function to unsubscribe all `WatchResizeObservable` subscribers
+ * and destroy the underlying browing context.
+ */
+export type DestroyWatchResizeObservable = () => void;
+
 // --- Business logic ------------------------------------------------------- //
 
 /** Checks if the given object is a valid `HTMLElement`. */
@@ -44,7 +50,7 @@ function isElement(obj: any) {
  */
 export function watchResize<T extends HTMLElement>(
   element: T,
-): Promise<WatchResizeObservable<T>> {
+): Promise<[WatchResizeObservable<T>, DestroyWatchResizeObservable]> {
   return new Promise((resolve, reject) => {
     // Assert that `element` is defined and is a valid DOM node.
     if (typeof element === 'undefined') {
@@ -86,6 +92,15 @@ export function watchResize<T extends HTMLElement>(
       subscribers.push(s);
     });
 
+    // Remove all subscribers, clean-up the events, and destroy the observable
+    const destroy = () => {
+      for (const sub of subscribers) {
+        sub.unsubscribe();
+      }
+
+      obj.remove();
+    };
+
     // When the <object> loads, resolve the Observable.
     obj.addEventListener('load', () => {
       if (obj.contentDocument && obj.contentDocument.defaultView) {
@@ -101,7 +116,7 @@ export function watchResize<T extends HTMLElement>(
           });
         });
 
-        resolve(observable);
+        resolve([observable, destroy]);
       } else {
         reject('[watch-resize] Failed to build a nested browsing context.');
       }

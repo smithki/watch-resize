@@ -1,6 +1,6 @@
 {
   "name": "watch-resize",
-  "version": "1.3.5",
+  "version": "2.0.0",
   "description": "Watch any DOM element for size changes using Observables.",
   "author": "Ian K Smith <smithki707@gmail.com>",
   "license": "MIT",
