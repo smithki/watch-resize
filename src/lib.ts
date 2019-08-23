@@ -53,7 +53,7 @@ export function watchResize<T extends HTMLElement>(
 ): Promise<[WatchResizeObservable<T>, DestroyWatchResizeObservable]> {
   return new Promise((resolve, reject) => {
     // Assert that `element` is defined and is a valid DOM node.
-    if (typeof element === 'undefined') {
+    if (typeof element === 'undefined' || element === null) {
       reject('[watch-resize] The given element must be defined.');
     }
     if (!isElement(element)) {
@@ -118,6 +118,7 @@ export function watchResize<T extends HTMLElement>(
 
         resolve([observable, destroy]);
       } else {
+        destroy();
         reject('[watch-resize] Failed to build a nested browsing context.');
       }
     });
