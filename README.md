@@ -11,17 +11,26 @@ A cross-compatible [ResizeObserver](https://developer.mozilla.org/en-US/docs/Web
 
 ## 🔗 Installation
 
-Install via `yarn` (recommended):
+Install via `yarn` or `npm`:
 
 ```sh
 yarn add watch-resize
 ```
 
-Install via `npm`:
-
 ```sh
 npm install watch-resize
 ```
+
+Don't forget the `peerDependencies`:
+
+```sh
+yarn add rxjs@~6.5.2
+```
+
+```sh
+npm install rxjs@~6.5.2
+```
+
 
 ## 🛠️ Usage
 
