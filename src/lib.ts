@@ -73,12 +73,21 @@ export function watchResize<T extends HTMLElement>(
 
     // Create a nested browsing context using an <object> element.
     const obj = document.createElement('object');
-    obj.setAttribute(
-      'style',
-      'display: block; position: absolute; top: 0; left: 0; height: 100%; width: 100%; overflow: hidden; pointer-events: none; z-index: -1;',
-    );
+
+    // Set type and data
     obj.type = 'text/html';
     obj.data = 'about:blank';
+
+    // Set CSSOM properties
+    obj.style.display = 'block';
+    obj.style.position = 'absolute';
+    obj.style.top = '0';
+    obj.style.left = '0';
+    obj.style.height = '100%';
+    obj.style.width = '100%';
+    obj.style.overflow = 'hidden';
+    obj.style.pointerEvents = 'none';
+    obj.style.zIndex = '-1';
 
     // Store some data that will change with the observable.
     const subscribers: Subscriber<WatchResizePayload<T>>[] = [];
