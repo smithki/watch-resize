@@ -35,6 +35,7 @@
     "@ikscodes/prettier-config": "^2.0.1",
     "@typescript-eslint/eslint-plugin": "^4.8.2",
     "agadoo": "^2.0.0",
+    "auto": "^10.5.0",
     "eslint": "^7.14.0",
     "eslint-import-resolver-typescript": "^2.3.0",
     "eslint-plugin-import": "^2.22.1",
