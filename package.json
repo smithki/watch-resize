@@ -1,6 +1,6 @@
 {
   "name": "watch-resize",
-  "version": "2.0.2",
+  "version": "3.0.0",
   "description": "Watch any DOM element for size changes without polyfills.",
   "author": "Ian K Smith <smithki707@gmail.com>",
   "license": "MIT",
