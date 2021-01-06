@@ -3,11 +3,11 @@
 [![code style: airbnb](https://img.shields.io/badge/code%20style-airbnb-blue.svg?style=flat)](https://github.com/airbnb/javascript)
 [![code style: prettier](https://img.shields.io/badge/code_style-prettier-ff69b4.svg?style=flat)](https://github.com/prettier/prettier)
 
-> Watch any DOM element for size changes using Observables.
+> Watch any DOM element for size changes without polyfills.
 
 ## 💁🏼‍♂️ Introduction
 
-A cross-compatible [ResizeObserver](https://developer.mozilla.org/en-US/docs/Web/API/ResizeObserver) alternative that uses [RxJS](https://github.com/ReactiveX/rxjs) observables. You can watch any element for size changes based on its bounding box.
+A zero-dependency, cross-compatible [ResizeObserver](https://developer.mozilla.org/en-US/docs/Web/API/ResizeObserver) alternative that doesn't require polyfills. You can watch any element for size changes based on its bounding box.
 
 ## 🔗 Installation
 
@@ -21,17 +21,6 @@ yarn add watch-resize
 npm install watch-resize
 ```
 
-Don't forget the `peerDependencies`:
-
-```sh
-yarn add rxjs@~6.5.2
-```
-
-```sh
-npm install rxjs@~6.5.2
-```
-
-
 ## 🛠️ Usage
 
 ```ts
@@ -39,23 +28,20 @@ import { watchResize } from 'watch-resize';
 
 const target = document.getElementById('my-element');
 
-watchResize(target).then(([resize$, destroyResize$]) => {
-  resize$.subscribe(({ element, event, prevBoundingClientRect }) => {
-    // Do stuff here for each "resize"
-  });
-
-  // Unsubscribe all subscribers, destroy the observable, and remove the
-  // nested browsing context that was created to generate events.
-  destroyResize$();
+watchResize(target, ({ element, event, prevBoundingClientRect, destroy }) => {
+  // Do stuff here for each "resize"
+})).then(() => {
+  // Once the promise resolves, the resize watcher has successfully mounted!
 });
 ```
 
-An object implementing `WatchResizePayload` is passed to subscribe handler:
+An object implementing `ResizePayload` is passed to subscribe handler:
 
 ```ts
-export interface WatchResizePayload<T extends HTMLElement> {
+export interface ResizePayload<T extends HTMLElement> {
   element: T;
   event: UIEvent;
   prevBoundingClientRect: ClientRect | DOMRect; // The previous result of "element.getBoundingClientRect()".
+  destroy: () => void; // Unobserves the element and cleans up event listeners
 }
 ```

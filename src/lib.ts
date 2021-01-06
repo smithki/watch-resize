@@ -1,30 +1,28 @@
-// --- Imports -------------------------------------------------------------- //
-
-import { Observable, Subscriber } from 'rxjs';
-
-// --- Types ---------------------------------------------------------------- //
-
-/** Payload received by `watchResize` subscribers to their `next` handler. */
-export interface WatchResizePayload<T extends HTMLElement> {
+/**
+ * Payload received by a `ResizeHandler`.
+ */
+export interface ResizePayload<T extends HTMLElement> {
   element: T;
   event: UIEvent;
   prevBoundingClientRect: ClientRect | DOMRect;
+  destroy: DestroyWatcher;
 }
 
-/** Observable created by `watchResize`. */
-export type WatchResizeObservable<T extends HTMLElement> = Observable<
-  WatchResizePayload<T>
->;
+/**
+ * A callback function invoked when the
+ * watched element emits a "resize" event.
+ */
+export type ResizeHandler<T extends HTMLElement> = (payload: ResizePayload<T>) => void | Promise<void>;
 
 /**
- * A synchronous function to unsubscribe all `WatchResizeObservable` subscribers
- * and destroy the underlying browing context.
+ * A synchronous function to unobserve
+ * the element given to `watchResize`.
  */
-export type DestroyWatchResizeObservable = () => void;
+export type DestroyWatcher = () => void;
 
-// --- Business logic ------------------------------------------------------- //
-
-/** Checks if the given object is a valid `HTMLElement`. */
+/**
+ * Checks if the given object is a valid `HTMLElement`.
+ */
 function isElement(obj: any) {
   try {
     // Using W3 DOM2 (works for FF, Opera and Chrome)
@@ -47,22 +45,22 @@ function isElement(obj: any) {
  * when the given DOM element's width or height changes.
  *
  * @param element - HTMLElement to observe.
+ * @param handler - A callback function invoked whenever the given `element`
+ * resizes.
  */
-export function watchResize<T extends HTMLElement>(
-  element: T,
-): Promise<[WatchResizeObservable<T>, DestroyWatchResizeObservable]> {
-  return new Promise((resolve, reject) => {
+export function watchResize<T extends HTMLElement>(element: T, handler: ResizeHandler<T>): Promise<DestroyWatcher> {
+  return new Promise<DestroyWatcher>((resolve, reject) => {
     // Assert that `element` is defined and is a valid DOM node.
     if (typeof element === 'undefined' || element === null) {
-      reject('[watch-resize] The given element must be defined.');
+      return reject(Promise.reject(new Error('[watch-resize] The given element must be defined.')));
     }
+
     if (!isElement(element)) {
-      reject('[watch-resize] The given element is not a valid DOM node.');
+      return reject(Promise.reject(new Error('[watch-resize] The given element is not a valid DOM node.')));
     }
+
     if (!element.parentNode) {
-      reject(
-        '[watch-resize] The given element is not yet attached to the DOM.',
-      );
+      return reject(Promise.reject(new Error('[watch-resize] The given element is not yet attached to the DOM.')));
     }
 
     // Ensure we are relatively positioned so that the nested browsing context
@@ -89,46 +87,29 @@ export function watchResize<T extends HTMLElement>(
     obj.style.pointerEvents = 'none';
     obj.style.zIndex = '-1';
 
-    // Store some data that will change with the observable.
-    const subscribers: Subscriber<WatchResizePayload<T>>[] = [];
-    let prevBoundingClientRect:
-      | ClientRect
-      | DOMRect = element.getBoundingClientRect();
+    // Save a reference to the element's current client rect.
+    let prevBoundingClientRect: ClientRect | DOMRect = element.getBoundingClientRect();
 
-    // Create the Observable that will emit each time the nested browsing
-    // context is resized.
-    const observable = new Observable<WatchResizePayload<T>>(s => {
-      subscribers.push(s);
-    });
-
-    // Remove all subscribers, clean-up the events, and destroy the observable
-    const destroy = () => {
-      for (const sub of subscribers) {
-        sub.unsubscribe();
-      }
-
-      obj.remove();
-    };
-
-    // When the <object> loads, resolve the Observable.
+    // When the <object> loads, apply the "resize" event listener and resolve.
     obj.addEventListener('load', () => {
       if (obj.contentDocument && obj.contentDocument.defaultView) {
         const viewContext = obj.contentDocument.defaultView;
 
-        // Handle the resize event -- emit to the saved subscribers!
-        viewContext.addEventListener('resize', event => {
-          subscribers.forEach((s, i) => {
-            if (s.closed) subscribers.splice(i, 1);
-            const payload = { element, event, prevBoundingClientRect };
-            s.next(payload);
-            prevBoundingClientRect = element.getBoundingClientRect();
-          });
-        });
+        const listener = (event: UIEvent) => {
+          handler({ element, event, prevBoundingClientRect, destroy });
+          prevBoundingClientRect = element.getBoundingClientRect();
+        };
 
-        resolve([observable, destroy]);
+        const destroy = () => {
+          viewContext.removeEventListener('resize', listener);
+          obj.remove();
+        };
+
+        viewContext.addEventListener('resize', listener);
+
+        resolve(destroy);
       } else {
-        destroy();
-        reject('[watch-resize] Failed to build a nested browsing context.');
+        reject(new Error('[watch-resize] Failed to build a nested browsing context.'));
       }
     });
 
