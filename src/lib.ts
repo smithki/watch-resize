@@ -41,8 +41,11 @@ function isElement(obj: any) {
 }
 
 /**
- * Returns a Promise that resolves to a RxJS Observable. The Observable fires
- * when the given DOM element's width or height changes.
+ * Returns a Promise that resolves when the observer is mounted. The observer
+ * fires "resize" events when the given DOM element's width or height changes.
+ *
+ * The resolved Promise value is a synchronous function which unobserves the
+ * element when called.
  *
  * @param element - HTMLElement to observe.
  * @param handler - A callback function invoked whenever the given `element`
