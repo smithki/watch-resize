@@ -75,9 +75,11 @@ export function watchResize<T extends HTMLElement>(element: T, handler: ResizeHa
     // Create a nested browsing context using an <object> element.
     const obj = document.createElement('object');
 
-    // Set type and data
+    // Set type and data, etc.
     obj.type = 'text/html';
     obj.data = 'about:blank';
+    obj.tabIndex = -1;
+    obj.setAttribute('aria-hidden', 'true');
 
     // Set CSSOM properties
     obj.style.display = 'block';
