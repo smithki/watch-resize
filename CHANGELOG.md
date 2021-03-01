@@ -1,3 +1,15 @@
+# v3.0.2 (Mon Mar 01 2021)
+
+#### 🐛 Bug Fix
+
+- Add `tabindex="-1"` and 'aria-hidden="true"' to underlying `<object>` tag [#14](https://github.com/smithki/watch-resize/pull/14) ([@smithki](https://github.com/smithki))
+
+#### Authors: 1
+
+- Ian K Smith ([@smithki](https://github.com/smithki))
+
+---
+
 # v3.0.1 (Tue Feb 09 2021)
 
 #### 🐛 Bug Fix
